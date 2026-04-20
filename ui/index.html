@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Microgrid Panel Generator</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="app.js"></script>
+</head>
+<body data-theme="dark">
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>Microgrid Panel Generator</h1>
+        <p class="subtitle">Design, visualize, and generate complete electrical panels in one place.</p>
+      </div>
+      <div class="topbar-actions">
+        <img class="kirloskar-logo" src="../Kirloskar Oil Engine Logo.png" alt="Kirloskar logo" />
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel controls-panel">
+        <div class="panel-header">
+          <div class="header-content">
+            <h2>Design Inputs</h2>
+            <p>Enter system details to generate your panel.</p>
+          </div>
+        </div>
+
+        <div class="control-stack">
+          <div class="control-layout">
+            <article class="card form-card control-main">
+              <div class="grid one-col">
+                <label>
+                  <span>Solar (kWp)</span>
+                  <input id="solarKw" type="number" min="0" step="1" value="100" />
+                </label>
+                <label>
+                  <span>Grid (kW)</span>
+                  <input id="gridKw" type="number" min="0" step="1" value="120" />
+                </label>
+                <label>
+                  <span>Number of DGs</span>
+                  <input id="numDg" type="number" min="0" max="4" step="1" value="2" />
+                </label>
+                <label>
+                  <span>Outgoing Feeders</span>
+                  <input id="numOutputs" type="number" min="1" max="10" step="1" value="3" />
+                </label>
+                <label>
+                  <span>Busbar Material</span>
+                  <select id="busbarMaterial">
+                    <option value="Copper">Copper</option>
+                    <option value="Aluminium" selected>Aluminium</option>
+                  </select>
+                </label>
+                <label>
+                  <span>System Phases / Poles</span>
+                  <select id="numPoles">
+                    <option value="3">3</option>
+                    <option value="4" selected>4</option>
+                  </select>
+                </label>
+                <button class="primary-button control-generate-button" id="generateButtonOutput" type="button">Generate</button>
+              </div>
+            </article>
+
+            <section class="control-side">
+              <article class="card sub-card">
+                <div class="card-title-row">
+                  <h3>DG Ratings</h3>
+                  <span class="chip subtle">kVA</span>
+                </div>
+                <div id="dgInputs" class="stacked-inputs"></div>
+              </article>
+
+              <article class="card sub-card">
+                <div class="card-title-row">
+                  <h3>Outgoing Feeder Ratings</h3>
+                  <span class="chip subtle">A</span>
+                </div>
+                <div id="outgoingInputs" class="stacked-inputs"></div>
+              </article>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="panel-header">
+          <div class="header-content">
+            <h2>Panel Design Preview</h2>
+            <p>Live previews of your panel design.</p>
+          </div>
+          <div class="header-actions">
+            <button class="icon-button" id="downloadPdfButton" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Report PDF</span>
+            </button>
+            <button class="icon-button" id="downloadGaButton" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>GA File</span>
+            </button>
+            <button class="icon-button" id="downloadExcelButton" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
+              </svg>
+              <span>BOM Excel</span>
+            </button>
+            <button class="ghost-button theme-emoji-button" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">☀️</button>
+          </div>
+        </div>
+
+        <div class="output-stack">
+          <div class="diagrams-grid">
+            <article class="card diagram-card">
+              <div class="card-title-row">
+                <h3>Single Line Diagram</h3>
+                <button class="diagram-fullscreen-btn" id="fullscreenSldButton" type="button" aria-label="Fullscreen SLD" title="Fullscreen SLD">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                </button>
+              </div>
+              <div class="diagram-frame"><img id="sldImage" alt="SLD preview" /></div>
+            </article>
+
+            <article class="card diagram-card">
+              <div class="card-title-row">
+                <h3>General Arrangement</h3>
+                <button class="diagram-fullscreen-btn" id="fullscreenGaButton" type="button" aria-label="Fullscreen GA" title="Fullscreen GA">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                </button>
+              </div>
+              <div class="diagram-frame"><img id="gaImage" alt="GA preview" /></div>
+            </article>
+          </div>
+
+          <div class="status-card hidden" id="statusCard">
+            <strong>Warnings</strong>
+            <p id="statusText"></p>
+          </div>
+
+          <div class="summary-grid" id="summaryGrid"></div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="fullscreen-overlay hidden" id="fullscreenOverlay" role="dialog" aria-modal="true" aria-label="Diagram fullscreen preview">
+    <button class="fullscreen-close" id="fullscreenClose" type="button" aria-label="Close fullscreen">×</button>
+    <img id="fullscreenImage" alt="Fullscreen diagram preview" />
+  </div>
+</body>
+</html>
